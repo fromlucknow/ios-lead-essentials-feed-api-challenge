@@ -23,10 +23,15 @@ public final class RemoteFeedLoader: FeedLoader {
 			switch result{
 			
 			case let .success((data, response)):
-				if let data = try? JSONSerialization.jsonObject(with: data, options: .allowFragments){
+				if let data = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? NSDictionary{
 					if  response.statusCode != 200{
 						completion(.failure(RemoteFeedLoader.Error.invalidData))
+					}else{
+						if (data.value(forKey: "items") as? NSArray)?.count == 0{
+							completion(.success([]))
+						}
 					}
+					
 				}else{
 					completion(.failure(RemoteFeedLoader.Error.invalidData))
 				}
