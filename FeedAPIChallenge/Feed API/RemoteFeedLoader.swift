@@ -22,10 +22,15 @@ public final class RemoteFeedLoader: FeedLoader {
 		client.get(from: url) { (result) in
 			switch result{
 			
-			case let .success((_, response)):
-				if  response.statusCode != 200{
+			case let .success((data, response)):
+				if let data = try? JSONSerialization.jsonObject(with: data, options: .allowFragments){
+					if  response.statusCode != 200{
+						completion(.failure(RemoteFeedLoader.Error.invalidData))
+					}
+				}else{
 					completion(.failure(RemoteFeedLoader.Error.invalidData))
 				}
+				
 			case .failure(_):
 				completion(.failure(RemoteFeedLoader.Error.connectivity))
 
